@@ -1,6 +1,6 @@
 from setuptools import setup
 
-install_requires = [ 'rdflib', 'rdflib-jsonld', 'simplejson', 'pytz', 'python-dateutil', 'PyCrypto', 'isodate' ]
+install_requires = [ 'git+https://github.com/Kreastr/rdflib.git@4.2.2-backports', 'rdflib-jsonld', 'simplejson', 'pytz', 'python-dateutil', 'PyCrypto', 'isodate' ]
 
 setup(name='SmartAPI',
     version='1.1.0',
