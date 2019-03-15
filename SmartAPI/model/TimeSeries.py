@@ -130,7 +130,7 @@ class TimeSeries(Obj):
 					self.setList(list_python, listType)
 				except:
 					print "Unable to interpret seas:list value as resource."					
-				return
+				raise
 			
 			# systemofinterest
 			if predicate == PROPERTY.SYSTEMOFINTEREST:
