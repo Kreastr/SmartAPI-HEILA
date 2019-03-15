@@ -124,10 +124,12 @@ class Model(object):
                 self._append_to_graph(subject, predicate, object.asTerm())
         
         elif isinstance(object, URIRef):
-            self._append_to_graph(subject, predicate, object)
+            if not subject is None:
+                self._append_to_graph(subject, predicate, object)
             
         else:
-            self._append_to_graph(subject, predicate, Literal(object))
+            if not subject is None:
+                self._append_to_graph(subject, predicate, Literal(object))
     
         """
         elif isinstance(object, list):  # ordered list is the default for raw lists
