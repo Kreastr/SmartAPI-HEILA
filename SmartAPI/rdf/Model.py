@@ -326,8 +326,8 @@ class Model(object):
                     self.graph.parse(data = data, format=format)
             except:
                 print "Could not read the input data into a graph"
-                #traceback.print_exc()
-                traceback.print_stack()
+                traceback.print_exc()
+                #traceback.print_stack()
             return
         
         elif file is not None:
