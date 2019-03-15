@@ -214,10 +214,12 @@ class Model(object):
             item = self._parse_list_entry(value, klass)
             if item: container.append(item)
         
-        if next is not None:
+        while next is not None:
             value = self.graph.value(subject=next, predicate=RDF.first)
             next = self.graph.value(subject=next, predicate=RDF.rest)
-            self._parse_linked_list(container, value, next, klass)
+            if value is not None:
+                item = self._parse_list_entry(value, klass)
+                if item: container.append(item)
             
         return 'LinkedList'
     
