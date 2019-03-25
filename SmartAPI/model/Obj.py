@@ -345,7 +345,7 @@ class Obj(object):
 							
 						del Tools.messagePartsForParse[obj.getIdentifierUri()]
 					else:
-						print '******* ERROR: can not find the encrypted string representation of ', obj.getIdentifierUri()
+						raise ('******* ERROR: can not find the encrypted string representation of ', obj.getIdentifierUri())
 						#try:
 						#	raise Exception('just to check!!!')		
 						#except:
