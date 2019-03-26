@@ -233,7 +233,10 @@ class Evaluation(ValueObject):
 				self.addActivity(Activity().parse(statement.getResource()))
 			except:
 				print "Unable to interpret seas:activity value as resource."
+                print statement
+                print "------------------------"
 				traceback.print_exc()
+                raise
 			return
 		
 		""""
