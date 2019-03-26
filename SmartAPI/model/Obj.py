@@ -212,7 +212,7 @@ class Obj(object):
 				# send encryptedKey to notary for storing						
 				if  not TransactionAgent.sendKeyToNotary(self.senderId, self.getIdentifierUri(),
 						hash, encryptedKey, self.getSignature(), self.getNotary()) :
-					print "Sending notarized session key to notary failed."
+					raise Exception("Sending notarized session key to notary failed.")
 					
 			# with public key
 			if self.getEncryptionKeyType() == RESOURCE.PUBLICKEY:
@@ -345,13 +345,13 @@ class Obj(object):
 							
 						del Tools.messagePartsForParse[obj.getIdentifierUri()]
 					else:
-						raise Exception('******* ERROR: can not find the encrypted string representation of ', obj.getIdentifierUri())
+						raise Exception('******* ERROR: can not find the encrypted string representation of {}'.format(obj.getIdentifierUri()))
 						#try:
 						#	raise Exception('just to check!!!')		
 						#except:
 						#	traceback.print_stack()
 				else:
-					print '***** ERROR: reference Obj has to be named!!!*******'
+					raise Exception('***** ERROR: reference Obj has to be named!!!*******')
 				
 			return obj
 		
@@ -373,128 +373,72 @@ class Obj(object):
 		
 		# type
 		if predicate == PROPERTY.RDF_TYPE:
-			try:
-				self.addType(URIRef(statement.getResource().toString()))
-			except:
-				print "Unable to interpret rdf:type value as resource."
-				traceback.print_exc()
+			self.addType(URIRef(statement.getResource().toString()))
 			return
 
 		# sameas
 		if predicate == PROPERTY.SAMEAS:
-			try:
-				self.setSameAs(statement.getResource().toString())
-			except:
-				print"Unable to interpret owl:sameAs value as resource."
-				traceback.print_exc()
+            self.setSameAs(statement.getResource().toString())
 			return
 
 		# generatedby
 		if predicate == PROPERTY.GENERATEDBY:
-			try:
-				self.setGeneratedBy(Activity.parse(statement.getResource()))
-			except:
-				print "Unable to interpret seas:generatedBy value as resource."
-				traceback.print_exc()
+            self.setGeneratedBy(Activity.parse(statement.getResource()))
 			return
 		
 		# generatedat
 		if predicate == PROPERTY.GENERATEDAT:
-			try:
-				self.setGeneratedAt(statement.getObject().toPython())
-			except:
-				print "Unable to interpret seas:generatedAt value as date literal."
-				traceback.print_exc()
+			self.setGeneratedAt(statement.getObject().toPython())
 			return
 
 		# provenance
 		if predicate == PROPERTY.PROVENANCE:
-			try:
-				self.addProvenance(Provenance.parse(statement.getResource()))
-			except:
-				print "Unable to interpret seas:provenance value as resource."
-				traceback.print_exc() 
+			self.addProvenance(Provenance.parse(statement.getResource()))
 			return
 		
 		# offerings
 		if  predicate == PROPERTY.OFFERS:
-			try:
-				self.addOffering(Offering.parse(statement.getResource()))
-			except:
-				print "Unable to interpret gr:offers value as resource."
-				traceback.print_exc()
+			self.addOffering(Offering.parse(statement.getResource()))
 			return
 
 		# target
 		if predicate == PROPERTY.TARGET:
-			try:
-				self.addTarget(statement.getString())
-			except:
-				print"Unable to interpret seas:target value as literal string."
-				traceback.print_exc()
+			self.addTarget(statement.getString())
 			return
 		
 		# label
 		if predicate == PROPERTY.RDFS_LABEL:
-			try:
-				self.setName(statement.getString())
-			except:
-				print"Unable to interpret rdfs:label value as literal string."
-				traceback.print_exc()
+			self.setName(statement.getString())
 			return
 
 		# comment
 		if predicate == PROPERTY.COMMENT:
-			try:
-				self.setDescription(statement.getString())
-			except:
-				print"Unable to interpret rdfs:comment value as literal string."
-				traceback.print_exc()
+			self.setDescription(statement.getString())
 			return
 		
 		# sessionKey
 		if predicate == PROPERTY.SESSIONKEY:
-			try:
-				self.setSessionKey(statement.getString())
-			except:
-				print "Unable to interpret seas:sessionKey value as literal string."
-				traceback.print_exc()
+			self.setSessionKey(statement.getString())
 			return
 		
 		# signature
 		if predicate == PROPERTY.SIGNATURE:
-			try:
-				self.setSignature(statement.getString())
-			except:
-				print "Unable to interpret seas:signature value as literal string."
-				traceback.print_exc()
+			self.setSignature(statement.getString())
 			return
 		
 		# hashcode
 		if predicate == PROPERTY.HASHCODE:
-			try:
-				self.setHashCode(statement.getString())
-			except:
-				print "Unable to interpret seas:hashCode value as literal string."
-				traceback.print_exc()
+			self.setHashCode(statement.getString())
 			return
 		
 		# encryptionKeyType
 		if predicate == PROPERTY.ENCRYPTIONKEYTYPE:
-			try:
-				self.setEncryptionKeyType(statement.getResource().toString())
-			except:
-				print "Unable to interpret seas:encryptionKeyType value as resource."
-				traceback.print_exc()
+			self.setEncryptionKeyType(statement.getResource().toString())
 			return
 		
 		# notary
 		if predicate == PROPERTY.NOTARY:
-			try:
-				self.setNotary(statement.getResource().toString())
-			except:
-				print "Unable to interpret seas:notary value as resource."
-				traceback.print_exc()
+			self.setNotary(statement.getResource().toString())
 			return
 		
 		# parameters
@@ -619,8 +563,7 @@ class Obj(object):
 	
 	def verifySignature(self, publickey):
 		if (not self.hasHashCode()) or (not self.hasSignature()):
-			print 'ERROR: hashcode or signature is empty.'
-			return False
+			raise Exception('ERROR: hashcode or signature is empty.')
 		else:
 			return SmartAPICrypto().verifySignature(self.getSignature(), publickey, self.getHashCode())
 	
@@ -917,20 +860,21 @@ class Obj(object):
 		
 		@type res: rdflib.resource.Resource
 		'''
+        output = ''
 		from rdflib import resource, URIRef, RDF, RDFS, Literal 
 		from SmartAPI.common.Tools import Tools
 		from SmartAPI.common.ConceptDetails import ConceptDetails
 					
 		#print indentString, res.value(RDF.type).qname(), self.ConceptDetailsEngine.getComments(res.value(RDF.type).identifier)
 		# print out label and comment for all its types.
-		print indentString, '-',
+		output += indentString + '-\n'
 		for ty in res[RDF.type]:
 			NSstr = self.getNSstring(ty.identifier.strip())
 			if len(ConceptDetails.getComments(ty.identifier, NSstr)) > 4:
-				print ConceptDetails.getComments(ty.identifier, NSstr),';',
+				output += ConceptDetails.getComments(ty.identifier, NSstr),';\n',
 			else:
-				print ty.qname(),';',
-		print
+				output += ty.qname(),';\n',
+		output += '\n'
 		
 		for p, o in res.predicate_objects():
 			if p.identifier in [RDF.type, RDFS.comment, RDFS.label]:# if the property is rdfs.label or rdfs.comment, do not need to print again!
@@ -938,24 +882,25 @@ class Obj(object):
 			#print indentString, ' ->', p.qname(), self.ConceptDetailsEngine.getComments(p.identifier)
 			NSstr = self.getNSstring(p.identifier.strip())
 			if len(ConceptDetails.getComments(p.identifier, NSstr)) > 4:
-				print indentString, '  |', ConceptDetails.getComments(p.identifier, NSstr),
+				output += indentString+ '  |'+ ConceptDetails.getComments(p.identifier, NSstr) +'\n',
 			else:
-				print indentString, '  |', p.qname(),
+				output += indentString+ '  |'+ p.qname()+'\n',
 				
 			if isinstance(o, resource.Resource) and (o.value(RDF.type) is not None):
-				print
+				output += '\n'
 				# get its type and print
 				self.treePrint(o,'	'+indentString)	
 			elif isinstance(o, Literal):
 				if o.datatype is not None:
-					print ':.......', o,'<', o.datatype, '>'
+					output += ':.......' + o +'<' + o.datatype+ '>\n'
 				else:
-					print ':.......', o,'<http://www.w3.org/2001/XMLSchema#string>'
+					output += ':.......' + o +'<http://www.w3.org/2001/XMLSchema#string>\n'
 			elif p.identifier.strip()==PROPERTY.LIST: # if p is seas:list, then o is a list, special attention is needed. 	
-				print						
+				output += '\n'
 				self.extractList(o, '	' + indentString, True)
 			else: # a simple url, also considered as resource
-				print ':.......', o.identifier,'<URI_STRING>'
+				output += ':.......', o.identifier,'<URI_STRING>\n'
+		return output
 	
 	@classmethod
 	def getNSstring(cls, resourceURI):
