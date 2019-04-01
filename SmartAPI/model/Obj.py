@@ -247,10 +247,10 @@ class Obj(object):
         # type
         typeProp = model.createProperty( PROPERTY.RDF_TYPE )
         for type in self.types:
-            try:
-                serialized = type.serialize(model)
-            except:
-                serialized = URIRef(type)
+            #try:
+            serialized = type.serialize(model)
+            #except:
+            #    serialized = URIRef(type)
             resource.addProperty( typeProp, serialized )
         
         #sessionKey
